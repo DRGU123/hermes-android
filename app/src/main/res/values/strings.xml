@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Hermes Phone Bridge</string>
+    <string name="service_description">Hermes Phone Bridge — enables remote control of your Android device via HTTP API. Required for Hermes Agent to interact with your phone screen.</string>
+</resources>
