@@ -20,12 +20,10 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.regex.*;
 
-import fi.iki.elonen.NanoHTTPD;
-
 public class PhoneBridgeService extends AccessibilityService {
 
     public static PhoneBridgeService instance;
-    private NanoHTTPD httpServer;
+    private NanoHttpd httpServer;
     private final ExecutorService executor = Executors.newCachedThreadPool();
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
     private int httpPort = 7890;
@@ -56,16 +54,24 @@ public class PhoneBridgeService extends AccessibilityService {
     // HTTP ROUTER
     // ══════════════════════════════════════════════════════════════════
 
-    private NanoHttpd.Response route(String method, String uri, String body) {
+    private Response route(String method, String uri, String body) {
         try {
             Map<String, String> params = parseQuery(uri);
             String path = uri.split("\\?")[0];
 
             if ("GET".equals(method) && "/status".equals(path)) {
-                if (instance == null) {
-                    return json(200, "{\"ok\":false,\"error\":\"service_not_ready\",\"instance\":null}");
+                boolean ready = (instance != null);
+                return json(200, "{\"ok\":true,\"service\":\"PhoneBridge\",\"instance\":" + ready + "}");
+            }
+            if ("GET".equals(method) && "/ping".equals(path)) {
+                boolean ready = (instance != null);
+                String winState = "no_instance";
+                if (ready) {
+                    AccessibilityNodeInfo root = instance.getRootInActiveWindow();
+                    winState = (root != null) ? "active" : "inactive";
+                    if (root != null) root.recycle();
                 }
-                return json(200, "{\"ok\":true,\"service\":\"PhoneBridge\",\"instance\":true}");
+                return json(200, "{\"ping\":true,\"instance\":" + ready + ",\"window\":\"" + winState + "\"}");
             }
             if ("POST".equals(method) && "/click".equals(path)) {
                 return handleClick(body);
@@ -99,7 +105,7 @@ public class PhoneBridgeService extends AccessibilityService {
     // COMMAND HANDLERS
     // ══════════════════════════════════════════════════════════════════
 
-    private NanoHttpd.Response handleClick(String body) throws Exception {
+    private Response handleClick(String body) throws Exception {
         int[] p = parseIntParams(body, "x", "y");
         final boolean[] ok = {false};
         mainHandler.post(() -> {
@@ -109,7 +115,7 @@ public class PhoneBridgeService extends AccessibilityService {
         return json(200, "{\"success\":" + ok[0] + "}");
     }
 
-    private NanoHttpd.Response handleSwipe(String body) throws Exception {
+    private Response handleSwipe(String body) throws Exception {
         int[] p = parseIntParams(body, "x1", "y1", "x2", "y2");
         int duration = parseIntParam(body, "duration", 300);
         final boolean[] ok = {false};
@@ -120,7 +126,7 @@ public class PhoneBridgeService extends AccessibilityService {
         return json(200, "{\"success\":" + ok[0] + "}");
     }
 
-    private NanoHttpd.Response handleInput(String body) throws Exception {
+    private Response handleInput(String body) throws Exception {
         String text = parseTextParam(body, "text");
         if (text == null) return json(400, "{\"error\":\"missing_text\"}");
         final boolean[] ok = {false};
@@ -131,7 +137,7 @@ public class PhoneBridgeService extends AccessibilityService {
         return json(200, "{\"success\":" + ok[0] + "}");
     }
 
-    private NanoHttpd.Response handlePress(String body, String keycodeParam) throws Exception {
+    private Response handlePress(String body, String keycodeParam) throws Exception {
         String keyStr = keycodeParam != null ? keycodeParam : parseTextParam(body, "keycode");
         if (keyStr == null) return json(400, "{\"error\":\"missing_keycode\"}");
         int keycode = Integer.parseInt(keyStr);
@@ -143,7 +149,7 @@ public class PhoneBridgeService extends AccessibilityService {
         return json(200, "{\"success\":" + ok[0] + "}");
     }
 
-    private NanoHttpd.Response handleGlobalAction(String body) throws Exception {
+    private Response handleGlobalAction(String body) throws Exception {
         String action = parseTextParam(body, "action");
         int code = globalActionCode(action);
         final boolean[] ok = {false};
@@ -154,7 +160,7 @@ public class PhoneBridgeService extends AccessibilityService {
         return json(200, "{\"success\":" + ok[0] + "}");
     }
 
-    private NanoHttpd.Response handleHierarchy() {
+    private Response handleHierarchy() {
         StringBuilder sb = new StringBuilder();
         mainHandler.post(() -> {
             AccessibilityNodeInfo root = getRootInActiveWindow();
@@ -265,8 +271,8 @@ public class PhoneBridgeService extends AccessibilityService {
                 .replace("\t", "\\t");
     }
 
-    private NanoHttpd.Response json(int status, String body) {
-        return new NanoHttpd.Response(status, "application/json", body);
+    private Response json(int status, String body) {
+        return new Response(status, "application/json", body);
     }
 
     private Map<String, String> parseQuery(String uri) {
