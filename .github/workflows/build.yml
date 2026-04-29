@@ -34,8 +34,13 @@ jobs:
           cd app
           gradle assembleDebug --no-daemon 2>&1
           echo "=== Build outputs ==="
-          ls -la build/outputs/apk/debug/ 2>&1 || echo "APK dir not found"
-          ls -la build/outputs/ 2>&1 || echo "outputs dir not found"
+          find build/outputs -type f 2>&1
+          echo "=== APK details ==="
+          ls -lh build/outputs/apk/debug/ 2>&1 || echo "APK dir not found"
+          echo "=== DEX file check ==="
+          find build -name "*.dex" -type f 2>&1
+          echo "=== classes.dex size ==="
+          ls -lh build/intermediates/dex/*/mergeExtDex*/classes.dex 2>&1 || true
 
       - name: Upload full build dir
         if: always()
