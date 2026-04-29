@@ -2,6 +2,10 @@ plugins {
     id 'com.android.application'
 }
 
+dependencies {
+    implementation 'org.nanohttpd:nanohttpd:2.3.1'
+}
+
 android {
     namespace 'com.hermes.phonebridge'
     compileSdk 33
@@ -18,8 +22,4 @@ android {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
     }
-}
-
-dependencies {
-    implementation 'fi.iki.elonen:NanoHTTPD:2.3.1'
 }

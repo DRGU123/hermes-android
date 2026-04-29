@@ -6,9 +6,7 @@
 
     <application
         android:allowBackup="true"
-        android:label="Hermes Phone Bridge"
-        android:icon="@mipmap/ic_launcher"
-        android:theme="@android:style/Theme.Material.Light">
+        android:label="Hermes Phone Bridge">
 
         <activity
             android:name=".MainActivity"
