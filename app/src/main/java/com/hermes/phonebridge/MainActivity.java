@@ -2,13 +2,14 @@ package com.hermes.phonebridge;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.ComponentName;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.view.View;
 import android.view.accessibility.AccessibilityManager;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
+import java.util.List;
 
 public class MainActivity extends Activity {
 
@@ -48,14 +49,47 @@ public class MainActivity extends Activity {
 
     private void updateStatus() {
         AccessibilityManager am = (AccessibilityManager) getSystemService(ACCESSIBILITY_SERVICE);
-        boolean enabled = am.isAccessibilityServiceEnabled(
-            new android.content.ComponentName(this, PhoneBridgeService.class)
-        );
+        ComponentName serviceName = new ComponentName(this, PhoneBridgeService.class);
+        String flatName = serviceName.flattenToShortString();
+
+        boolean enabled = false;
+        try {
+            List<android.accessibilityservice.AccessibilityServiceInfo> services =
+                am.getEnabledAccessibilityServiceList(
+                    android.accessibilityservice.AccessibilityServiceInfo.FEEDBACK_ALL_MASK);
+            for (android.accessibilityservice.AccessibilityServiceInfo svc : services) {
+                ComponentName cn = ComponentName.unflattenFromString(svc.getId());
+                if (cn != null && cn.equals(serviceName)) {
+                    enabled = true;
+                    break;
+                }
+            }
+        } catch (Exception e) {
+            enabled = false;
+        }
+
         if (enabled) {
-            statusText.setText("✅ PhoneBridge Service is active\n\nOpen Hermes Agent and it will connect to this phone.\n\nHTTP API available at:\nhttp://localhost:7890\n\nEndpoints:\n  GET  /status\n  POST /click   {x, y}\n  POST /swipe   {x1, y1, x2, y2, duration}\n  POST /input   {text}\n  POST /press   {keycode}\n  POST /global_action {action}\n  GET  /hierarchy");
+            statusText.setText(
+                "✅ PhoneBridge Service is active\n\n" +
+                "Hermes Agent can now control this phone.\n\n" +
+                "HTTP API: http://localhost:7890\n\n" +
+                "Endpoints:\n" +
+                "  GET  /status\n" +
+                "  POST /click   {\"x\":100,\"y\":200}\n" +
+                "  POST /swipe   {\"x1\":0,\"y1\":0,\"x2\":500,\"y2\":1000}\n" +
+                "  POST /input   {\"text\":\"hello\"}\n" +
+                "  POST /press   {\"keycode\":4}\n" +
+                "  POST /global_action {\"action\":\"home\"}\n" +
+                "  GET  /hierarchy\n" +
+                "  GET  /screenshot (requires extra permission)"
+            );
             enableBtn.setVisibility(View.GONE);
         } else {
-            statusText.setText("❌ Accessibility Service not enabled\n\nTap the button below to open Android settings and enable PhoneBridge.");
+            statusText.setText(
+                "❌ Accessibility Service not enabled\n\n" +
+                "Tap the button below to open Android settings,\n" +
+                "then find and enable \"Hermes Phone Bridge\"."
+            );
             enableBtn.setVisibility(View.VISIBLE);
         }
     }
