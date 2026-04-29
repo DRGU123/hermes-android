@@ -37,6 +37,13 @@ jobs:
           ls -la build/outputs/apk/debug/ 2>&1 || echo "APK dir not found"
           ls -la build/outputs/ 2>&1 || echo "outputs dir not found"
 
+      - name: Upload full build dir
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-debug-full
+          path: app/build/
+
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
