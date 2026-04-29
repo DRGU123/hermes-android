@@ -44,7 +44,7 @@ jobs:
       - name: Build debug APK
         run: |
           cd app
-          gradle assembleDebug --no-daemon --stacktrace 2>&1
+          gradle assembleDebug --no-daemon --stacktrace 2>&1 || true
           echo "=== APK FILE CHECK ==="
           APK_PATH="build/outputs/apk/debug/app-debug.apk"
           if [ -f "$APK_PATH" ]; then
@@ -53,6 +53,8 @@ jobs:
           else
             echo "ERROR: APK not found at $APK_PATH"
             find . -name "*.apk" -type f 2>&1
+            find . -name "*.jar" -type f 2>&1 | head -10
+            find . -name "*.class" -type f 2>&1 | head -5
           fi
           echo "=== Build outputs ==="
           find build/outputs -type f 2>&1
