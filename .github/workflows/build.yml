@@ -57,21 +57,51 @@ jobs:
           echo "=== Build outputs ==="
           find build/outputs -type f 2>&1
 
+      - name: Verify APK
+        run: |
+          set -e
+          APK="app/build/outputs/apk/debug/app-debug.apk"
+          if [ ! -f "$APK" ]; then
+            echo "ERROR: APK not found"
+            exit 1
+          fi
+          SIZE=$(wc -c < "$APK")
+          echo "APK size: $SIZE bytes"
+          if [ "$SIZE" -lt 1000 ]; then
+            echo "ERROR: APK suspiciously small ($SIZE bytes)"
+            exit 1
+          fi
+          # Verify it's a valid ZIP/APK
+          if ! unzip -t "$APK" > /dev/null 2>&1; then
+            echo "ERROR: APK is not a valid ZIP archive"
+            exit 1
+          fi
+          unzip -l "$APK" | head -15
+          echo "=== APK VERIFIED OK ==="
+
       - name: Upload full build dir
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: build-debug-full
           path: app/build/
+          retention-days: 7
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: PhoneBridge-debug
           path: app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 7
+          compression-level: 0
 
-      - name: Print APK info
-        run: |
-          APK=$(find . -name "*.apk" -type f | head -1)
-          echo "APK: $APK"
-          ls -lh "$APK"
+      - name: Create Release
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: app/build/outputs/apk/debug/app-debug.apk
+          tag_name: v${{ github.run_number }}
+          name: PhoneBridge v${{ github.run_number }}
+          draft: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
