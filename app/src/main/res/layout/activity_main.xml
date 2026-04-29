@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FAFAFA"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <!-- Title -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Hermes Phone Bridge"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:textColor="#1A1A1A"
+            android:layout_marginBottom="4dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="控制Android手机的HTTP桥接服务"
+            android:textSize="13sp"
+            android:textColor="#888888"
+            android:layout_marginBottom="24dp"/>
+
+        <!-- ════ 服务状态 ════ -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="服务状态"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="#666666"
+            android:layout_marginBottom="12dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="8dp">
+            <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_weight="1" android:text="无障碍服务" android:textSize="15sp"/>
+            <TextView android:id="@+id/tv_accessibility_status"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="检查中…" android:textSize="15sp"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="8dp">
+            <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_weight="1" android:text="悬浮窗权限" android:textSize="15sp"/>
+            <TextView android:id="@+id/tv_overlay_status"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="检查中…" android:textSize="15sp"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="8dp">
+            <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_weight="1" android:text="截屏投影" android:textSize="15sp"/>
+            <TextView android:id="@+id/tv_projection_status"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="检查中…" android:textSize="15sp"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="8dp">
+            <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_weight="1" android:text="通知监听" android:textSize="15sp"/>
+            <TextView android:id="@+id/tv_notification_status"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="检查中…" android:textSize="15sp"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="16dp">
+            <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_weight="1" android:text="使用统计" android:textSize="15sp"/>
+            <TextView android:id="@+id/tv_usage_stats_status"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="检查中…" android:textSize="15sp"/>
+        </LinearLayout>
+
+        <!-- Service buttons -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="24dp">
+            <Button
+                android:id="@+id/btn_start_service"
+                android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_weight="1" android:layout_marginEnd="8dp"
+                android:text="开启无障碍服务"/>
+            <Button
+                android:id="@+id/btn_stop_service"
+                android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_weight="1" android:layout_marginStart="8dp"
+                android:text="停止服务"
+                android:visibility="gone"/>
+        </LinearLayout>
+
+        <!-- ════ 端口设置 ════ -->
+        <TextView
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="HTTP 端口"
+            android:textSize="14sp" android:textStyle="bold"
+            android:textColor="#666666" android:layout_marginBottom="8dp"/>
+        <Spinner
+            android:id="@+id/spinner_port"
+            android:layout_width="match_parent" android:layout_height="48dp"
+            android:background="@android:drawable/btn_dropdown"
+            android:layout_marginBottom="24dp"/>
+
+        <!-- ════ 权限管理 ════ -->
+        <TextView
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="运行时权限"
+            android:textSize="14sp" android:textStyle="bold"
+            android:textColor="#666666" android:layout_marginBottom="4dp"/>
+        <TextView
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="点击授权后按系统提示操作，被拒绝的权限可到设置中手动开启"
+            android:textSize="12sp" android:textColor="#999999"
+            android:layout_marginBottom="12dp"/>
+
+        <LinearLayout
+            android:id="@+id/permissions_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@android:drawable/edit_text"
+            android:padding="8dp"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- Global buttons -->
+        <Button
+            android:id="@+id/btn_request_permissions"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="一次性申请所有权限"
+            android:layout_marginBottom="8dp"/>
+        <Button
+            android:id="@+id/btn_open_settings"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="打开应用设置"/>
+
+        <!-- ════ API 说明 ════ -->
+        <TextView
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="HTTP API"
+            android:textSize="14sp" android:textStyle="bold"
+            android:textColor="#666666" android:layout_marginTop="24dp" android:layout_marginBottom="8dp"/>
+        <TextView
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="POST /click {x,y}  — 点击屏幕\nPOST /swipe {x1,y1,x2,y2,duration}  — 滑动\nPOST /input {text}  — 输入文本\nPOST /press {keycode}  — 按键\nPOST /global_action {action}  — 全局动作\nGET /hierarchy  — UI层级\nGET /screenshot  — 截图\nGET /status  — 服务状态"
+            android:textSize="12sp"
+            android:textColor="#555555"
+            android:fontFamily="monospace"
+            android:lineSpacingExtra="4dp"/>
+
+    </LinearLayout>
+</ScrollView>

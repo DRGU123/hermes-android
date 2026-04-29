@@ -1,0 +1,70 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="com.hermes.phonebridge"
+4    android:versionCode="1"
+5    android:versionName="1.0" >
+6
+7    <uses-sdk
+8        android:minSdkVersion="26"
+9        android:targetSdkVersion="33" />
+10
+11    <uses-permission android:name="android.permission.INTERNET" />
+11-->/data/data/com.termux/files/home/phone-control/android/app/src/main/AndroidManifest.xml:4:5-67
+11-->/data/data/com.termux/files/home/phone-control/android/app/src/main/AndroidManifest.xml:4:22-64
+12    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+12-->/data/data/com.termux/files/home/phone-control/android/app/src/main/AndroidManifest.xml:5:5-79
+12-->/data/data/com.termux/files/home/phone-control/android/app/src/main/AndroidManifest.xml:5:22-76
+13
+14    <application
+14-->/data/data/com.termux/files/home/phone-control/android/app/src/main/AndroidManifest.xml:7:5-33:19
+15        android:allowBackup="true"
+15-->/data/data/com.termux/files/home/phone-control/android/app/src/main/AndroidManifest.xml:8:9-35
+16        android:debuggable="true"
+17        android:extractNativeLibs="false"
+18        android:label="Hermes Phone Bridge" >
+18-->/data/data/com.termux/files/home/phone-control/android/app/src/main/AndroidManifest.xml:9:9-44
+19        <activity
+19-->/data/data/com.termux/files/home/phone-control/android/app/src/main/AndroidManifest.xml:11:9-19:20
+20            android:name="com.hermes.phonebridge.MainActivity"
+20-->/data/data/com.termux/files/home/phone-control/android/app/src/main/AndroidManifest.xml:12:13-41
+21            android:exported="true"
+21-->/data/data/com.termux/files/home/phone-control/android/app/src/main/AndroidManifest.xml:13:13-36
+22            android:label="Hermes Phone Bridge" >
+22-->/data/data/com.termux/files/home/phone-control/android/app/src/main/AndroidManifest.xml:14:13-48
+23            <intent-filter>
+23-->/data/data/com.termux/files/home/phone-control/android/app/src/main/AndroidManifest.xml:15:13-18:29
+24                <action android:name="android.intent.action.MAIN" />
+24-->/data/data/com.termux/files/home/phone-control/android/app/src/main/AndroidManifest.xml:16:17-69
+24-->/data/data/com.termux/files/home/phone-control/android/app/src/main/AndroidManifest.xml:16:25-66
+25
+26                <category android:name="android.intent.category.LAUNCHER" />
+26-->/data/data/com.termux/files/home/phone-control/android/app/src/main/AndroidManifest.xml:17:17-77
+26-->/data/data/com.termux/files/home/phone-control/android/app/src/main/AndroidManifest.xml:17:27-74
+27            </intent-filter>
+28        </activity>
+29
+30        <service
+30-->/data/data/com.termux/files/home/phone-control/android/app/src/main/AndroidManifest.xml:21:9-31:19
+31            android:name="com.hermes.phonebridge.PhoneBridgeService"
+31-->/data/data/com.termux/files/home/phone-control/android/app/src/main/AndroidManifest.xml:22:13-47
+32            android:exported="false"
+32-->/data/data/com.termux/files/home/phone-control/android/app/src/main/AndroidManifest.xml:23:13-37
+33            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE" >
+33-->/data/data/com.termux/files/home/phone-control/android/app/src/main/AndroidManifest.xml:24:13-79
+34            <intent-filter>
+34-->/data/data/com.termux/files/home/phone-control/android/app/src/main/AndroidManifest.xml:25:13-27:29
+35                <action android:name="android.accessibilityservice.AccessibilityService" />
+35-->/data/data/com.termux/files/home/phone-control/android/app/src/main/AndroidManifest.xml:26:17-92
+35-->/data/data/com.termux/files/home/phone-control/android/app/src/main/AndroidManifest.xml:26:25-89
+36            </intent-filter>
+37
+38            <meta-data
+38-->/data/data/com.termux/files/home/phone-control/android/app/src/main/AndroidManifest.xml:28:13-30:58
+39                android:name="android.accessibilityservice"
+39-->/data/data/com.termux/files/home/phone-control/android/app/src/main/AndroidManifest.xml:29:17-60
+40                android:resource="@xml/service_config" />
+40-->/data/data/com.termux/files/home/phone-control/android/app/src/main/AndroidManifest.xml:30:17-55
+41        </service>
+42    </application>
+43
+44</manifest>

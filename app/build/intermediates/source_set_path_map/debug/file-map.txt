@@ -1,0 +1,7 @@
+com.hermes.phonebridge.app-pngs-0 /data/data/com.termux/files/home/phone-control/android/app/build/generated/res/pngs/debug
+com.hermes.phonebridge.app-resValues-1 /data/data/com.termux/files/home/phone-control/android/app/build/generated/res/resValues/debug
+com.hermes.phonebridge.app-packageDebugResources-2 /data/data/com.termux/files/home/phone-control/android/app/build/intermediates/incremental/debug/packageDebugResources/merged.dir
+com.hermes.phonebridge.app-packageDebugResources-3 /data/data/com.termux/files/home/phone-control/android/app/build/intermediates/incremental/debug/packageDebugResources/stripped.dir
+com.hermes.phonebridge.app-merged_res-4 /data/data/com.termux/files/home/phone-control/android/app/build/intermediates/merged_res/debug
+com.hermes.phonebridge.app-debug-5 /data/data/com.termux/files/home/phone-control/android/app/src/debug/res
+com.hermes.phonebridge.app-main-6 /data/data/com.termux/files/home/phone-control/android/app/src/main/res

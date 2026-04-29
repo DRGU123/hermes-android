@@ -2,23 +2,35 @@ package com.hermes.phonebridge;
 
 import android.accessibilityservice.AccessibilityService;
 import android.accessibilityservice.GestureDescription;
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Path;
+import android.graphics.PixelFormat;
+import android.hardware.display.DisplayManager;
+import android.hardware.display.VirtualDisplay;
+import android.media.projection.MediaProjection;
+import android.media.projection.MediaProjectionManager;
+import android.media.Image;
+import android.media.ImageReader;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.Build;
 import android.util.DisplayMetrics;
+import android.util.Base64;
+import android.view.Surface;
 import android.view.WindowManager;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.inputmethod.InputMethodManager;
-import android.os.Build;
 
 import java.io.*;
 import java.net.*;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.regex.*;
+import java.nio.ByteBuffer;
 
 public class PhoneBridgeService extends AccessibilityService {
 
@@ -28,12 +40,46 @@ public class PhoneBridgeService extends AccessibilityService {
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
     private int httpPort = 7890;
 
+    // MediaProjection for screenshots
+    private static int sMediaProjectionResultCode = -1;
+    private static Intent sMediaProjectionData = null;
+    private MediaProjection sMediaProjection;
+    private VirtualDisplay sVirtualDisplay;
+    private ImageReader sImageReader;
+    private int sScreenWidth = 1080;
+    private int sScreenHeight = 1920;
+    private int sScreenDensity = 420;
+
+    public static void updateMediaProjection(int resultCode, Intent data) {
+        sMediaProjectionResultCode = resultCode;
+        sMediaProjectionData = data;
+    }
+
     public static PhoneBridgeService getInstance() { return instance; }
 
     @Override
     protected void onServiceConnected() {
         super.onServiceConnected();
         instance = this;
+
+        // Get screen dimensions
+        WindowManager wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
+        DisplayMetrics dm = new DisplayMetrics();
+        wm.getDefaultDisplay().getRealMetrics(dm);
+        sScreenWidth = dm.widthPixels;
+        sScreenHeight = dm.heightPixels;
+        sScreenDensity = dm.densityDpi;
+
+        // Restore saved port
+        int savedPort = getSharedPreferences("phonebridge", Context.MODE_PRIVATE)
+            .getInt("http_port", 7890);
+        httpPort = savedPort;
+
+        // Re-init MediaProjection if we have saved credentials
+        if (sMediaProjectionResultCode != -1 && sMediaProjectionData != null) {
+            initMediaProjection();
+        }
+
         startHttpServer();
     }
 
@@ -47,6 +93,7 @@ public class PhoneBridgeService extends AccessibilityService {
     public void onDestroy() {
         super.onDestroy();
         if (httpServer != null) httpServer.stop();
+        releaseMediaProjection();
         executor.shutdown();
     }
 
@@ -92,7 +139,7 @@ public class PhoneBridgeService extends AccessibilityService {
                 return handleHierarchy();
             }
             if ("GET".equals(method) && "/screenshot".equals(path)) {
-                return json(200, "{\"error\":\"screenshot_requires_media_projection_permission\"}");
+                return handleScreenshot();
             }
             return json(404, "{\"error\":\"unknown_command\"}");
         } catch (Exception e) {
@@ -160,14 +207,107 @@ public class PhoneBridgeService extends AccessibilityService {
     }
 
     private NanoHttpd.Response handleHierarchy() {
-        StringBuilder sb = new StringBuilder();
+        final String[] result = {""};
         mainHandler.post(() -> {
             AccessibilityNodeInfo root = getRootInActiveWindow();
-            sb.append(nodeToJson(root, 0));
+            result[0] = nodeToJson(root, 0);
             if (root != null) root.recycle();
         });
         try { Thread.sleep(500); } catch (Exception e) {}
-        return json(200, "{\"hierarchy\":" + sb + "}");
+        return json(200, "{\"hierarchy\":" + result[0] + "}");
+    }
+
+    private NanoHttpd.Response handleScreenshot() {
+        if (sMediaProjection == null) {
+            return json(200, "{\"error\":\"media_projection_not_granted\",\"hint\":\"Open app and tap '截屏投影' to authorize\"}");
+        }
+        Bitmap bmp = captureScreenshot();
+        if (bmp == null) {
+            return json(500, "{\"error\":\"screenshot_failed\"}");
+        }
+        String base64;
+        try {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            bmp.compress(Bitmap.CompressFormat.PNG, 90, baos);
+            base64 = Base64.encodeToString(baos.toByteArray(), Base64.NO_WRAP);
+            bmp.recycle();
+        } catch (Exception e) {
+            return json(500, "{\"error\":\"encoding_failed\"}");
+        }
+        return new NanoHttpd.Response(200, "application/json",
+            "{\"screenshot\":\"data:image/png;base64," + base64 + "\"}");
+    }
+
+    // ══════════════════════════════════════════════════════════════════
+    // SCREENSHOT — MediaProjection
+    // ══════════════════════════════════════════════════════════════════
+
+    private synchronized void initMediaProjection() {
+        if (sMediaProjectionData == null) return;
+        try {
+            MediaProjectionManager mpm = getSystemService(Context.MEDIA_PROJECTION_SERVICE);
+            sMediaProjection = mpm.getMediaProjection(sMediaProjectionResultCode, sMediaProjectionData);
+            sImageReader = ImageReader.newInstance(sScreenWidth, sScreenHeight, PixelFormat.RGBA_8888, 2);
+            sVirtualDisplay = sMediaProjection.createVirtualDisplay(
+                "PhoneBridge",
+                sScreenWidth, sScreenHeight, sScreenDensity,
+                DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR,
+                sImageReader.getSurface(),
+                null, mainHandler);
+        } catch (Exception e) {
+            android.util.Log.e("PhoneBridge", "initMediaProjection failed", e);
+            sMediaProjection = null;
+        }
+    }
+
+    private synchronized void releaseMediaProjection() {
+        if (sVirtualDisplay != null) {
+            sVirtualDisplay.release();
+            sVirtualDisplay = null;
+        }
+        if (sImageReader != null) {
+            sImageReader.close();
+            sImageReader = null;
+        }
+        if (sMediaProjection != null) {
+            sMediaProjection.stop();
+            sMediaProjection = null;
+        }
+    }
+
+    private synchronized Bitmap captureScreenshot() {
+        if (sImageReader == null) return null;
+        Image image = null;
+        try {
+            image = sImageReader.acquireLatestImage();
+            if (image == null) {
+                // Try acquireNextImage as fallback
+                image = sImageReader.acquireNextImage();
+            }
+            if (image == null) return null;
+
+            Image.Plane[] planes = image.getPlanes();
+            ByteBuffer buffer = planes[0].getBuffer();
+            int offset = planes[0].getRowOffset();
+            int pixelStride = planes[0].getPixelStride();
+            int rowStride = planes[0].getRowStride();
+            int rowPadding = rowStride - pixelStride * sScreenWidth;
+
+            Bitmap bitmap = Bitmap.createBitmap(sScreenWidth + rowPadding / pixelStride,
+                sScreenHeight, Bitmap.Config.ARGB_8888);
+            bitmap.copyPixelsFromBuffer(buffer);
+
+            // Crop to actual screen size
+            if (rowPadding > 0) {
+                bitmap = Bitmap.createBitmap(bitmap, 0, 0, sScreenWidth, sScreenHeight);
+            }
+            return bitmap;
+        } catch (Exception e) {
+            android.util.Log.e("PhoneBridge", "captureScreenshot failed", e);
+            return null;
+        } finally {
+            if (image != null) image.close();
+        }
     }
 
     // ══════════════════════════════════════════════════════════════════
@@ -307,7 +447,6 @@ public class PhoneBridgeService extends AccessibilityService {
     private String parseTextParam(String body, String key) {
         if (body == null) return null;
         try {
-            // Match "key":"value" or "key":value
             Pattern p = Pattern.compile("\"" + key + "\"\\s*:\\s*(\"[^\"]*\"|\\d+|true|false)");
             Matcher m = p.matcher(body);
             if (m.find()) {
@@ -320,7 +459,7 @@ public class PhoneBridgeService extends AccessibilityService {
     }
 
     // ══════════════════════════════════════════════════════════════════
-    // NANO HTTP SERVER (minimal embedded implementation)
+    // NANO HTTP SERVER
     // ══════════════════════════════════════════════════════════════════
 
     private void startHttpServer() {
@@ -382,7 +521,8 @@ public class PhoneBridgeService extends AccessibilityService {
                     if (colon > 0) {
                         String k = line.substring(0, colon).trim().toLowerCase();
                         headers.put(k, line.substring(colon + 1).trim());
-                        if ("content-length".equals(k)) contentLength = Integer.parseInt(line.substring(15).trim());
+                        if ("content-length".equals(k))
+                            contentLength = Integer.parseInt(line.substring(15).trim());
                     }
                 }
 

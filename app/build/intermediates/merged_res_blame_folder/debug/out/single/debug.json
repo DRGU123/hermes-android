@@ -1,0 +1,6 @@
+[
+    {
+        "merged": "com.hermes.phonebridge.app-merged_res-4:/xml_service_config.xml.flat",
+        "source": "com.hermes.phonebridge.app-main-6:/xml/service_config.xml"
+    }
+]
