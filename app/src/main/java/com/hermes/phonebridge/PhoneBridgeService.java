@@ -62,6 +62,16 @@ public class PhoneBridgeService extends AccessibilityService {
             if ("GET".equals(method) && "/status".equals(path)) {
                 return json(200, "{\"ok\":true,\"service\":\"PhoneBridge\"}");
             }
+            if ("GET".equals(method) && "/ping".equals(path)) {
+                boolean ready = (instance != null);
+                String winState = "no_instance";
+                if (ready) {
+                    AccessibilityNodeInfo root = instance.getRootInActiveWindow();
+                    winState = (root != null) ? "active" : "inactive";
+                    if (root != null) root.recycle();
+                }
+                return json(200, "{\"ping\":true,\"instance\":" + ready + ",\"window\":\"" + winState + "\"}");
+            }
             if ("POST".equals(method) && "/click".equals(path)) {
                 return handleClick(body);
             }
