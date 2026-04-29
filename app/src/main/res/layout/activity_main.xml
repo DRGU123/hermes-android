@@ -75,7 +75,10 @@
                 android:layout_weight="1" android:text="截屏投影" android:textSize="15sp"/>
             <TextView android:id="@+id/tv_projection_status"
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:text="检查中…" android:textSize="15sp"/>
+                android:text="检查中…" android:textSize="15sp"
+                android:clickable="true" android:focusable="true"
+                android:background="?android:attr/selectableItemBackground"
+                android:padding="8dp"/>
         </LinearLayout>
 
         <LinearLayout
