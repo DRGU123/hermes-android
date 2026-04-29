@@ -19,7 +19,3 @@ android {
         targetCompatibility JavaVersion.VERSION_17
     }
 }
-
-dependencies {
-    implementation 'fi.iki.elonen:NanoHTTPD:2.3.1'
-}
