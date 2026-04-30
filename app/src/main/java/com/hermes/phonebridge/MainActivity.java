@@ -61,8 +61,7 @@ public class MainActivity extends AppCompatActivity {
         {
             Manifest.permission.SEND_SMS,
             Manifest.permission.RECEIVE_SMS,
-            Manifest.permission.READ_SMS,
-            Manifest.permission.WRITE_SMS
+            Manifest.permission.READ_SMS
         },
         {
             Manifest.permission.READ_CONTACTS,
@@ -212,7 +211,7 @@ public class MainActivity extends AppCompatActivity {
             startActivity(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)));
 
         tvOverlayStatus.setOnClickListener(v ->
-            startActivity(new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION_URI,
+            startActivity(new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
                 Uri.parse("package:" + getPackageName()))));
 
         tvNotificationStatus.setOnClickListener(v ->
