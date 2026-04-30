@@ -17,7 +17,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import android.accessibility.AccessibilityManager;
+import android.media.projection.MediaProjectionManager;
+import android.view.accessibility.AccessibilityManager;
 import java.io.*;
 import java.util.*;
 

@@ -245,7 +245,7 @@ public class PhoneBridgeService extends AccessibilityService {
     private synchronized void initMediaProjection() {
         if (sMediaProjectionData == null) return;
         try {
-            MediaProjectionManager mpm = getSystemService(Context.MEDIA_PROJECTION_SERVICE);
+            MediaProjectionManager mpm = getSystemService(MediaProjectionManager.class);
             sMediaProjection = mpm.getMediaProjection(sMediaProjectionResultCode, sMediaProjectionData);
             sImageReader = ImageReader.newInstance(sScreenWidth, sScreenHeight, PixelFormat.RGBA_8888, 2);
             sVirtualDisplay = sMediaProjection.createVirtualDisplay(
