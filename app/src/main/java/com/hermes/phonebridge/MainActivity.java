@@ -1,7 +1,6 @@
 package com.hermes.phonebridge;
 
 import android.Manifest;
-import android.accessibilityservice.AccessibilityServiceInfo;
 import android.app.*;
 import android.content.*;
 import android.content.pm.PackageManager;
@@ -325,14 +324,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private boolean isAccessibilityServiceEnabled(Context ctx, Class<?> serviceClass) {
-        AccessibilityManager am = (AccessibilityManager)
-            ctx.getSystemService(Context.ACCESSIBILITY_SERVICE);
-        List<AccessibilityServiceInfo> enabled = am.getEnabledAccessibilityServiceList(
-            AccessibilityServiceInfo.FEEDBACK_ALL_MASK);
-        for (AccessibilityServiceInfo info : enabled) {
-            ComponentName component = info.getComponentName();
-            if (component != null && component.getClassName()
-                    .equals(serviceClass.getName())) {
+        String enabledServices = Settings.Secure.getString(
+            ctx.getContentResolver(),
+            Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES);
+        if (enabledServices == null) return false;
+        ComponentName comp = new ComponentName(ctx, serviceClass);
+        String flatName = comp.flattenToString();
+        for (String s : enabledServices.split(":")) {
+            ComponentName c = ComponentName.unflattenFromString(s);
+            if (c != null && c.flattenToString().equals(flatName)) {
                 return true;
             }
         }
