@@ -288,7 +288,6 @@ public class PhoneBridgeService extends AccessibilityService {
 
             Image.Plane[] planes = image.getPlanes();
             ByteBuffer buffer = planes[0].getBuffer();
-            int offset = planes[0].getRowOffset();
             int pixelStride = planes[0].getPixelStride();
             int rowStride = planes[0].getRowStride();
             int rowPadding = rowStride - pixelStride * sScreenWidth;

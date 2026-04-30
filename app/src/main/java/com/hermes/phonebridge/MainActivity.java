@@ -330,7 +330,8 @@ public class MainActivity extends AppCompatActivity {
         List<AccessibilityServiceInfo> enabled = am.getEnabledAccessibilityServiceList(
             AccessibilityServiceInfo.FEEDBACK_ALL_MASK);
         for (AccessibilityServiceInfo info : enabled) {
-            if (info.getResolveInfo().getComponentName().getClassName()
+            ComponentName component = info.getComponentName();
+            if (component != null && component.getClassName()
                     .equals(serviceClass.getName())) {
                 return true;
             }
